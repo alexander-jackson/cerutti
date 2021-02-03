@@ -16,5 +16,8 @@ async def hello():
         greeting = await websocket.recv()
         print(f"< {greeting}")
 
+        # Wait until the game begins
+        await websocket.recv()
+
 
 asyncio.get_event_loop().run_until_complete(hello())
