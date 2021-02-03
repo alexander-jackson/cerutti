@@ -13,7 +13,7 @@ bot = Bot()
 
 
 async def main():
-    uri = "ws://localhost:8765"
+    uri = "ws://abs.blackboards.pl:8765"
 
     async with websockets.connect(uri) as websocket:
         name = input("What's your name? ")
