@@ -261,16 +261,16 @@ class Auctioneer(object):
             try:
                 # Match the bid type to the game type
                 if self.game_type == "value":
-                    # Pass in all the information for the bot as kwargs
+                    # Don't expand the args quite yet, the client will do that
                     bid = int(
                         await bot["bot_instance"].get_bid_game_type_value(
-                            **info_for_bots_deep_copy
+                            info_for_bots_deep_copy
                         )
                     )
                 elif self.game_type == "collection":
                     bid = int(
                         await bot["bot_instance"].get_bid_game_type_collection(
-                            **info_for_bots_deep_copy
+                            info_for_bots_deep_copy
                         )
                     )
             except Exception as e:

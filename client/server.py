@@ -8,8 +8,6 @@ import websockets
 from copy import deepcopy
 from typing import Dict, List
 
-from auctioneer import Auctioneer
-
 auctioneer = None
 room = []
 winners = []
@@ -68,7 +66,7 @@ async def root(websocket, path):
         if not game_has_been_run:
             # Create the auctioneer and begin
             auctioneer = Auctioneer(
-                room=room, game_type="value", slowdown=0, verbose=True
+                room=room, game_type="value", slowdown=0, verbose=False
             )
             winners = await auctioneer.run_auction()
             print("winners: {}".format(winners))

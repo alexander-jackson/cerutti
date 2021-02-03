@@ -1,10 +1,18 @@
 #!/usr/bin/env python3
 
+import pickle
+import random
 import asyncio
 import websockets
 
+from uXXXXXXX import Bot
+from server import UserBot
 
-async def hello():
+# Create a bot for the user
+bot = Bot()
+
+
+async def main():
     uri = "ws://localhost:8765"
 
     async with websockets.connect(uri) as websocket:
@@ -18,8 +26,8 @@ async def hello():
 
         # Wait until the game begins
         while True:
-            message = await websocket.recv()
-            print("message: {}".format(message))
+            message = pickle.loads(await websocket.recv())
+            await websocket.send(str(bot.get_bid_game_type_value(**message)))
 
 
-asyncio.get_event_loop().run_until_complete(hello())
+asyncio.get_event_loop().run_until_complete(main())
