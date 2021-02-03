@@ -1,26 +1,32 @@
 #!/usr/bin/env python3
 
+import random
 import asyncio
 import websockets
 
+from copy import deepcopy
 from typing import Dict, List
 
 from auctioneer import Auctioneer
 
 auctioneer = None
 room = []
+winners = []
 event = asyncio.Event()
+game_lock = asyncio.Lock()
+game_has_been_run = False
 
 
 class UserBot(object):
-    def __init__(self, name: str):
+    def __init__(self, name: str, websocket):
         self.name = name
+        self.websocket = websocket
 
     def Bot(self):
         print(self.name)
         return self
 
-    def get_bid_game_type_collection(
+    async def get_bid_game_type_collection(
         self,
         current_round: int,
         bots,
@@ -36,9 +42,10 @@ class UserBot(object):
         winner_ids: List[str],
         amounts_paid: List[int],
     ) -> int:
+        await self.websocket.send(f"Current round: {current_round}")
         return 0
 
-    def get_bid_game_type_value(
+    async def get_bid_game_type_value(
         self,
         current_round: int,
         bots,
@@ -54,18 +61,24 @@ class UserBot(object):
         winner_ids: List[str],
         amounts_paid: List[int],
     ) -> int:
+        await self.websocket.send(f"Current round: {current_round}")
         return 0
+
+    def __deepcopy__(self, memo):
+        return UserBot(deepcopy(self.name, memo), self.websocket)
 
 
 async def root(websocket, path):
+    global game_has_been_run, winners
+
     name = await websocket.recv()
     print(f"< {name}")
 
     greeting = f"Hello {name}, there are currently {len(room)} bots playing!"
     await websocket.send(greeting)
 
-    room.append(UserBot(name))
-    print("bots: {}".format(room))
+    identifier = len(room)
+    room.append(UserBot(name, websocket))
 
     # If we don't have enough bots, wait until we do
     if len(room) < 2:
@@ -74,11 +87,19 @@ async def root(websocket, path):
     # We have enough, notify all threads
     event.set()
 
-    await websocket.send("Game is beginning, bot count has been achieved")
+    async with game_lock:
+        if not game_has_been_run:
+            # Create the auctioneer and begin
+            auctioneer = Auctioneer(
+                room=room, game_type="value", slowdown=0, verbose=False
+            )
+            winners = await auctioneer.run_auction()
+            print("winners: {}".format(winners))
 
-    # Create the auctioneer and begin
-    auctioneer = Auctioneer(room=room, game_type="value", slowdown=0)
-    auctioneer.run_auction()
+            game_has_been_run = True
+
+    # Game has been run now, inform the sockets
+    await websocket.send(winners[0])
 
 
 def main():

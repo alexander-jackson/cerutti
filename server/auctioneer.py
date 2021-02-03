@@ -180,14 +180,14 @@ class Auctioneer(object):
     ## Running a single round of the auction
     ##########################################
 
-    def run_auction(self):
+    async def run_auction(self):
         while not self.finished:
 
             # Print an update to the terminal and reset bids
             self.__start_round()
 
             # Get bids from all of the bots playing
-            self.__collect_bids()
+            await self.__collect_bids()
 
             # Determine the winning bot of this auction round and award the painting
             self.__pick_winner_of_the_round()
@@ -221,7 +221,7 @@ class Auctioneer(object):
         for bot in self.bots:
             bot["current_bid"] = 0
 
-    def __collect_bids(self):
+    async def __collect_bids(self):
         """
         Get bids from each of the bots, and check that the bids are valid
         This passes data to the bot so that the bot can build a strategy on that data
@@ -263,13 +263,13 @@ class Auctioneer(object):
                 if self.game_type == "value":
                     # Pass in all the information for the bot as kwargs
                     bid = int(
-                        bot["bot_instance"].get_bid_game_type_value(
+                        await bot["bot_instance"].get_bid_game_type_value(
                             **info_for_bots_deep_copy
                         )
                     )
                 elif self.game_type == "collection":
                     bid = int(
-                        bot["bot_instance"].get_bid_game_type_collection(
+                        await bot["bot_instance"].get_bid_game_type_collection(
                             **info_for_bots_deep_copy
                         )
                     )
