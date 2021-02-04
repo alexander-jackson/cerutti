@@ -28,7 +28,7 @@ class UserBot(object):
         return self
 
     async def get_bid_game_type_collection(self, args) -> int:
-        await self.websocket.send(f"Current round: {current_round}")
+        await self.websocket.send(pickle.dumps(args))
         return int(await self.websocket.recv())
 
     async def get_bid_game_type_value(self, args) -> int:
