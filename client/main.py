@@ -5,7 +5,7 @@ import random
 import asyncio
 import websockets
 
-from uXXXXXXX import Bot
+from player import Bot
 from server import UserBot
 
 # Create a bot for the user
