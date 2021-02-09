@@ -7,7 +7,7 @@ import asyncio
 import websockets
 
 from cerutti.player import Bot
-from cerutti.lib.server import UserBot
+from cerutti.lib.user_bot import UserBot
 
 # Create a bot for the user
 bot = Bot()

@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 
-import pickle
-import random
 import asyncio
 import websockets
 
-from copy import deepcopy
-from typing import Dict, List
-
 from cerutti.lib.auctioneer import Auctioneer
+from cerutti.lib.user_bot import UserBot
 
 auctioneer = None
 room = []
@@ -16,33 +12,6 @@ winners = []
 event = asyncio.Event()
 game_lock = asyncio.Lock()
 game_has_been_run = False
-
-
-class UserBot(object):
-    def __init__(self, name: str, websocket):
-        self.name = name
-        self.websocket = websocket
-
-    def Bot(self):
-        print(self.name)
-        return self
-
-    async def get_bid_game_type_collection(self, args) -> int:
-        await self.websocket.send(pickle.dumps(args))
-        return int(await self.websocket.recv())
-
-    async def get_bid_game_type_value(self, args) -> int:
-        # Convert the dictionary to a JSON string
-        await self.websocket.send(pickle.dumps(args))
-        return int(await self.websocket.recv())
-
-    def __deepcopy__(self, memo):
-        return UserBot(deepcopy(self.name, memo), self.websocket)
-
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state["websocket"]
-        return state
 
 
 async def root(websocket, path):
