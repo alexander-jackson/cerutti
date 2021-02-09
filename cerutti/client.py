@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-import argparse
-import pickle
-import random
 import asyncio
 import websockets
+
+from zenlog import log
 
 from cerutti.player import Bot
 from cerutti.lib.user_bot import UserBot
@@ -15,6 +14,7 @@ bot = Bot()
 
 async def main(args):
     uri = f"ws://{args.base}:{args.port}"
+    log.info(f"Connecting to: {uri}")
 
     async with websockets.connect(uri) as websocket:
         name = input("What's your name? ")

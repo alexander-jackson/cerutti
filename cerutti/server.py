@@ -3,6 +3,8 @@
 import asyncio
 import websockets
 
+from zenlog import log
+
 from cerutti.lib.auctioneer import Auctioneer
 from cerutti.lib.user_bot import UserBot
 
@@ -18,7 +20,8 @@ async def root(websocket, path):
     global game_has_been_run, winners
 
     name = await websocket.recv()
-    print(f"< {name}")
+
+    log.debug(f"Received a connection with name: {name}")
 
     greeting = f"Hello {name}, there are currently {len(room)} bots playing!"
     await websocket.send(greeting)
@@ -40,7 +43,7 @@ async def root(websocket, path):
                 room=room, game_type="value", slowdown=0, verbose=True
             )
             winners = await auctioneer.run_auction()
-            print("winners: {}".format(winners))
+            log.info(f"Winners: {winners}")
 
             game_has_been_run = True
 
@@ -49,6 +52,8 @@ async def root(websocket, path):
 
 
 def start(args):
+    log.info(f"Hosting a server on port: {args.port}")
     start_server = websockets.serve(root, "localhost", args.port)
+
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()
