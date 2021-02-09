@@ -6,25 +6,15 @@ import random
 import asyncio
 import websockets
 
-from player import Bot
-from server import UserBot
+from cerutti.player import Bot
+from cerutti.lib.server import UserBot
 
 # Create a bot for the user
 bot = Bot()
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "--base", type=str, required=False, default="abs.blackboards.pl"
-    )
-
-    return parser.parse_args()
-
-
-async def main(args: argparse.Namespace):
-    uri = f"ws://{args.base}:8765"
+async def main():
+    uri = f"ws://localhost:8765"
 
     async with websockets.connect(uri) as websocket:
         name = input("What's your name? ")
@@ -41,6 +31,5 @@ async def main(args: argparse.Namespace):
             await websocket.send(str(bot.get_bid_game_type_value(**message)))
 
 
-if __name__ == "__main__":
-    args = parse_args()
-    asyncio.get_event_loop().run_until_complete(main(args))
+def start():
+    asyncio.get_event_loop().run_until_complete(main())

@@ -8,7 +8,7 @@ import websockets
 from copy import deepcopy
 from typing import Dict, List
 
-from auctioneer import Auctioneer
+from cerutti.lib.auctioneer import Auctioneer
 
 auctioneer = None
 room = []
@@ -79,11 +79,7 @@ async def root(websocket, path):
     await websocket.send(winners[0])
 
 
-def main():
+def start():
     start_server = websockets.serve(root, "localhost", 8765)
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()
-
-
-if __name__ == "__main__":
-    main()
