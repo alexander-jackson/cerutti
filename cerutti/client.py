@@ -13,8 +13,8 @@ from cerutti.lib.user_bot import UserBot
 bot = Bot()
 
 
-async def main():
-    uri = f"ws://localhost:8765"
+async def main(args):
+    uri = f"ws://{args.base}:8765"
 
     async with websockets.connect(uri) as websocket:
         name = input("What's your name? ")
@@ -31,5 +31,5 @@ async def main():
             await websocket.send(str(bot.get_bid_game_type_value(**message)))
 
 
-def start():
-    asyncio.get_event_loop().run_until_complete(main())
+def start(args):
+    asyncio.get_event_loop().run_until_complete(main(args))
