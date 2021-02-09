@@ -11,9 +11,11 @@ def parse_args() -> argparse.Namespace:
 
     client_parser = subparser.add_parser("client", help="Client arguments")
     client_parser.add_argument("--base", type=str, default="abs.blackboards.pl")
+    client_parser.add_argument("--port", type=int, default=8765)
     client_parser.set_defaults(func=client.start)
 
     server_parser = subparser.add_parser("server", help="Client arguments")
+    server_parser.add_argument("--port", type=int, default=8765)
     server_parser.set_defaults(func=server.start)
 
     return parser.parse_args()

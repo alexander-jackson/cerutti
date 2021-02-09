@@ -14,7 +14,7 @@ bot = Bot()
 
 
 async def main(args):
-    uri = f"ws://{args.base}:8765"
+    uri = f"ws://{args.base}:{args.port}"
 
     async with websockets.connect(uri) as websocket:
         name = input("What's your name? ")
