@@ -7,6 +7,7 @@ from zenlog import log
 
 from cerutti.lib.auctioneer import Auctioneer
 from cerutti.lib.user_bot import UserBot
+from cerutti.lib.messages import RegistrationSchema
 
 auctioneer = None
 room = []
@@ -19,15 +20,17 @@ game_has_been_run = False
 async def root(websocket, path):
     global game_has_been_run, winners
 
-    name = await websocket.recv()
+    message = await websocket.recv()
+    registration = RegistrationSchema().loads(message)
+    log.debug(f"Received a connection with name: {registration.name}")
 
-    log.debug(f"Received a connection with name: {name}")
-
-    greeting = f"Hello {name}, there are currently {len(room)} bots playing!"
+    greeting = (
+        f"Hello {registration.name}, there are currently {len(room)} bots playing!"
+    )
     await websocket.send(greeting)
 
     identifier = len(room)
-    room.append(UserBot(name, websocket))
+    room.append(UserBot(registration.name, websocket))
 
     # If we don't have enough bots, wait until we do
     if len(room) < 2:

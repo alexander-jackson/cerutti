@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pickle
 import asyncio
 import websockets
 
@@ -7,6 +8,7 @@ from zenlog import log
 
 from cerutti.player import Bot
 from cerutti.lib.user_bot import UserBot
+from cerutti.lib.messages import Registration, RegistrationSchema
 
 # Create a bot for the user
 bot = Bot()
@@ -17,10 +19,11 @@ async def main(args):
     log.info(f"Connecting to: {uri}")
 
     async with websockets.connect(uri) as websocket:
-        name = input("What's your name? ")
+        registration = Registration(name=bot.name)
+        message = RegistrationSchema().dumps(registration)
 
-        await websocket.send(name)
-        print(f"> {name}")
+        log.debug(f"Sending to the server: {message}")
+        await websocket.send(message)
 
         greeting = await websocket.recv()
         print(f"< {greeting}")
