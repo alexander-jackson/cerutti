@@ -7,7 +7,7 @@ from zenlog import log
 
 from cerutti.lib.auctioneer import Auctioneer
 from cerutti.lib.user_bot import UserBot
-from cerutti.lib.messages import RegistrationSchema
+from cerutti.lib.messages import Registration
 
 auctioneer = None
 room = []
@@ -21,7 +21,7 @@ async def root(websocket, path):
     global game_has_been_run, winners
 
     message = await websocket.recv()
-    registration = RegistrationSchema().loads(message)
+    registration = Registration.Schema().loads(message)
     log.debug(f"Received a connection with name: {registration.name}")
 
     greeting = (

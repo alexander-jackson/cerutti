@@ -8,7 +8,7 @@ from zenlog import log
 
 from cerutti.player import Bot
 from cerutti.lib.user_bot import UserBot
-from cerutti.lib.messages import Registration, RegistrationSchema
+from cerutti.lib.messages import Registration
 
 # Create a bot for the user
 bot = Bot()
@@ -20,7 +20,7 @@ async def main(args):
 
     async with websockets.connect(uri) as websocket:
         registration = Registration(name=bot.name)
-        message = RegistrationSchema().dumps(registration)
+        message = Registration.Schema().dumps(registration)
 
         log.debug(f"Sending to the server: {message}")
         await websocket.send(message)
