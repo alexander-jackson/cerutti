@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+import json
 import pickle
 
 from copy import deepcopy
+
+from zenlog import log
+
+from cerutti.lib.messages import BidRequest
 
 
 class UserBot(object):
@@ -19,8 +24,12 @@ class UserBot(object):
         return int(await self.websocket.recv())
 
     async def get_bid_game_type_value(self, args) -> int:
-        # Convert the dictionary to a JSON string
-        await self.websocket.send(pickle.dumps(args))
+        arguments = pickle.dumps(args)
+        bid_request = BidRequest(arguments=arguments.hex())
+
+        message = BidRequest.Schema().dump(bid_request)
+        await self.websocket.send(json.dumps(message))
+
         return int(await self.websocket.recv())
 
     def __deepcopy__(self, memo):

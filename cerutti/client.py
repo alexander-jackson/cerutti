@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import pickle
 import asyncio
 import websockets
@@ -8,7 +9,7 @@ from zenlog import log
 
 from cerutti.player import Bot
 from cerutti.lib.user_bot import UserBot
-from cerutti.lib.messages import Registration
+from cerutti.lib.messages import Registration, BidRequest
 
 # Create a bot for the user
 bot = Bot()
@@ -26,12 +27,15 @@ async def main(args):
         await websocket.send(message)
 
         greeting = await websocket.recv()
-        print(f"< {greeting}")
+        log.info(f"< {greeting}")
 
         # Wait until the game begins
         while True:
-            message = pickle.loads(await websocket.recv())
-            await websocket.send(str(bot.get_bid_game_type_value(**message)))
+            message = await websocket.recv()
+            bid_request = BidRequest.Schema().loads(message)
+            args = pickle.loads(bytes.fromhex(bid_request.arguments))
+
+            await websocket.send(str(bot.get_bid_game_type_value(**args)))
 
 
 def start(args):
