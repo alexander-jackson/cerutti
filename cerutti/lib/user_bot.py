@@ -5,8 +5,6 @@ import pickle
 
 from copy import deepcopy
 
-from zenlog import log
-
 from cerutti.lib.messages import BidRequest
 
 
@@ -20,12 +18,17 @@ class UserBot(object):
         return self
 
     async def get_bid_game_type_collection(self, args) -> int:
-        await self.websocket.send(f"Current round: {current_round}")
+        arguments = pickle.dumps(args).hex()
+        bid_request = BidRequest(arguments=arguments)
+
+        message = BidRequest.Schema().dump(bid_request)
+        await self.websocket.send(json.dumps(message))
+
         return int(await self.websocket.recv())
 
     async def get_bid_game_type_value(self, args) -> int:
-        arguments = pickle.dumps(args)
-        bid_request = BidRequest(arguments=arguments.hex())
+        arguments = pickle.dumps(args).hex()
+        bid_request = BidRequest(arguments=arguments)
 
         message = BidRequest.Schema().dump(bid_request)
         await self.websocket.send(json.dumps(message))

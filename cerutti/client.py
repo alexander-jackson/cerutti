@@ -37,12 +37,12 @@ async def play_game(websocket):
             log.error("Failed to get a valid message from the socket.")
             continue
 
-        if isinstance(message, AuctionEnd):
-            log.info(f"Auction winners: {message.winners}")
-            return
-        else:
+        if isinstance(message, BidRequest):
             args = pickle.loads(bytes.fromhex(message.arguments))
             await websocket.send(str(bot.get_bid_game_type_value(**args)))
+        elif isinstance(message, AuctionEnd):
+            log.info(f"Auction winners: {message.winners}")
+            return
 
 
 async def main(args):
