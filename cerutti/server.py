@@ -22,7 +22,7 @@ async def root(websocket, path):
 
     message = await websocket.recv()
     registration = Registration.Schema().loads(message)
-    log.debug(f"Received a connection with name: {registration.name}")
+    log.debug(f"Received a connection with settings={registration}")
 
     greeting = (
         f"Hello {registration.name}, there are currently {len(room)} bots playing!"
@@ -32,17 +32,17 @@ async def root(websocket, path):
     room.append(UserBot(registration.name, websocket))
 
     # If we don't have enough bots, wait until we do
-    if len(room) < 2:
+    if len(room) < registration.bots:
         await event.wait()
 
-    # We have enough, notify all threads
+    # We have enough, notify all tasks
     event.set()
 
     async with game_lock:
         if not game_has_been_run:
             # Create the auctioneer and begin
             auctioneer = Auctioneer(
-                room=room, game_type="value", slowdown=0, verbose=True
+                room=room, game_type=registration.gametype, slowdown=0, verbose=True
             )
             winners = await auctioneer.run_auction()
             log.info(f"Winners: {winners}")

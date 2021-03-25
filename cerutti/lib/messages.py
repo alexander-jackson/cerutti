@@ -6,7 +6,14 @@ from marshmallow_dataclass import dataclass
 
 @dataclass
 class Registration:
+    # The name of the user's bot
     name: str
+    # The gametype they would like to play
+    gametype: str
+    # The number of bots to wait for
+    bots: int
+
+    # For the type checker
     Schema: ClassVar[Type[Schema]] = Schema
 
 

@@ -50,7 +50,9 @@ async def main(args):
     log.info(f"Connecting to: {uri}")
 
     async with websockets.connect(uri) as websocket:
-        registration = Registration(name=bot.name)
+        registration = Registration(
+            name=bot.name, gametype=args.gametype, bots=args.bots
+        )
         message = Registration.Schema().dumps(registration)
 
         log.debug(f"Sending to the server: {message}")

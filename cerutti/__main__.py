@@ -10,8 +10,28 @@ def parse_args() -> argparse.Namespace:
     subparser = parser.add_subparsers(help="Subcommands for running a client or server")
 
     client_parser = subparser.add_parser("client", help="Client arguments")
-    client_parser.add_argument("--base", type=str, default="abs.blackboards.pl")
-    client_parser.add_argument("--port", type=int, default=8765)
+    client_parser.add_argument(
+        "--base",
+        type=str,
+        default="abs.blackboards.pl",
+        help="The base URL of the server",
+    )
+    client_parser.add_argument(
+        "--port", type=int, default=8765, help="The port to connect to"
+    )
+    client_parser.add_argument(
+        "--gametype",
+        type=str,
+        choices=["value", "collection"],
+        required=True,
+        help="The gametype to play against other bots",
+    )
+    client_parser.add_argument(
+        "--bots",
+        type=int,
+        required=True,
+        help="The number of bots to play against",
+    )
     client_parser.set_defaults(func=client.start)
 
     server_parser = subparser.add_parser("server", help="Client arguments")
