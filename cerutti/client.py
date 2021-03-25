@@ -1,18 +1,48 @@
 #!/usr/bin/env python3
 
-import json
 import pickle
 import asyncio
 import websockets
 
+from typing import Optional, Union
+
 from zenlog import log
 
 from cerutti.player import Bot
-from cerutti.lib.user_bot import UserBot
-from cerutti.lib.messages import Registration, BidRequest
+from cerutti.lib.messages import AuctionEnd, BidRequest, Registration
 
 # Create a bot for the user
 bot = Bot()
+
+
+async def parse_game_message(websocket) -> Optional[Union[BidRequest, AuctionEnd]]:
+    data = await websocket.recv()
+
+    types = [BidRequest, AuctionEnd]
+
+    for ty in types:
+        try:
+            message = ty.Schema().loads(data)
+            return message
+        except Exception:
+            continue
+
+
+async def play_game(websocket):
+    # Wait until the game begins
+    while True:
+        message = await parse_game_message(websocket)
+
+        if message is None:
+            log.error("Failed to get a valid message from the socket.")
+            continue
+
+        if isinstance(message, AuctionEnd):
+            log.info(f"Auction winners: {message.winners}")
+            return
+        else:
+            args = pickle.loads(bytes.fromhex(message.arguments))
+            await websocket.send(str(bot.get_bid_game_type_value(**args)))
 
 
 async def main(args):
@@ -29,13 +59,7 @@ async def main(args):
         greeting = await websocket.recv()
         log.info(f"< {greeting}")
 
-        # Wait until the game begins
-        while True:
-            message = await websocket.recv()
-            bid_request = BidRequest.Schema().loads(message)
-            args = pickle.loads(bytes.fromhex(bid_request.arguments))
-
-            await websocket.send(str(bot.get_bid_game_type_value(**args)))
+        await play_game(websocket)
 
 
 def start(args):

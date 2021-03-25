@@ -1,3 +1,5 @@
+from typing import List
+
 from marshmallow_dataclass import dataclass
 
 
@@ -10,3 +12,8 @@ class Registration:
 class BidRequest:
     # hex-encoded string
     arguments: str
+
+
+@dataclass
+class AuctionEnd:
+    winners: List[str]
