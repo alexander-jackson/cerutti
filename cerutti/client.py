@@ -28,7 +28,7 @@ async def parse_game_message(websocket) -> Optional[Union[BidRequest, AuctionEnd
             continue
 
 
-async def play_game(websocket):
+async def play_game(websocket, gametype: str):
     # Wait until the game begins
     while True:
         message = await parse_game_message(websocket)
@@ -39,7 +39,14 @@ async def play_game(websocket):
 
         if isinstance(message, BidRequest):
             args = pickle.loads(bytes.fromhex(message.arguments))
-            await websocket.send(str(bot.get_bid_game_type_value(**args)))
+            value = None
+
+            if gametype == "value":
+                value = str(bot.get_bid_game_type_value(**args))
+            else:
+                value = str(bot.get_bid_game_type_collection(**args))
+
+            await websocket.send(value)
         elif isinstance(message, AuctionEnd):
             log.info(f"Auction winners: {message.winners}")
             return
@@ -65,7 +72,7 @@ async def main(args):
         greeting = await websocket.recv()
         log.info(f"< {greeting}")
 
-        await play_game(websocket)
+        await play_game(websocket, args.gametype)
 
 
 def start(args):
