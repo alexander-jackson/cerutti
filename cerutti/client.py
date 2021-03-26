@@ -46,7 +46,11 @@ async def play_game(websocket):
 
 
 async def main(args):
-    uri = f"ws://{args.base}:{args.port}"
+    uri = f"ws://{args.base}"
+
+    if args.port:
+        uri = f"{uri}:{args.port}"
+
     log.info(f"Connecting to: {uri}")
 
     async with websockets.connect(uri) as websocket:

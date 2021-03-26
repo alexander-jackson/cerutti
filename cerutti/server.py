@@ -17,7 +17,7 @@ Room = List[UserBot]
 event = asyncio.Event()
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class RoomKey:
     gametype: str
     bots: int
@@ -102,7 +102,7 @@ async def root(websocket, path):
 
 def start(args):
     log.info(f"Hosting a server on port: {args.port}")
-    start_server = websockets.serve(root, "localhost", args.port)
+    start_server = websockets.serve(root, "127.0.0.1", args.port)
 
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()

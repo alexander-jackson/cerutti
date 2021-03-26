@@ -16,9 +16,7 @@ def parse_args() -> argparse.Namespace:
         default="abs.blackboards.pl",
         help="The base URL of the server",
     )
-    client_parser.add_argument(
-        "--port", type=int, default=8765, help="The port to connect to"
-    )
+    client_parser.add_argument("--port", type=int, help="The port to connect to")
     client_parser.add_argument(
         "--gametype",
         type=str,
