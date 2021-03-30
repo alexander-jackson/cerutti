@@ -10,7 +10,7 @@ from zenlog import log
 
 from cerutti.lib.auctioneer import Auctioneer
 from cerutti.lib.user_bot import UserBot
-from cerutti.lib.messages import AuctionEnd, Registration, MultiAuctionEnd
+from cerutti.lib.messages import AuctionEnd, Registration, MultiAuctionEnd, ResetBot
 
 Room = List[UserBot]
 
@@ -56,28 +56,41 @@ rooms: Dict[RoomKey, Tuple[asyncio.Lock, Union[SingleRoom, MultiRoom], RoomInfo]
 
 
 async def _run_auction(
-    room_key: RoomKey, room_info: RoomInfo, room: Union[SingleRoom, MultiRoom]
+    room_key: RoomKey,
+    room_info: RoomInfo,
+    room: Union[SingleRoom, MultiRoom],
+    websocket,
 ):
-
-    auctioneer = Auctioneer(
-        room=room,
-        game_type=room_key.gametype,
-        slowdown=0,
-        verbose=True,
-    )
 
     if room_info.room_type is MultiRoom:
 
+        log.debug("Running multiroom")
         for _ in range(room.runs):
+            auctioneer = Auctioneer(
+                room=room.bot_room,
+                game_type=room_key.gametype,
+                slowdown=0,
+                verbose=True,
+            )
             winners = await auctioneer.run_auction()
 
             for winner in winners:
                 room.winners[winner] += 1
 
-            log.info(f"Winners: {room_info.winners}")
+            log.debug(f"Winners: {room.winners}")
+
+            message = ResetBot.Schema().dumps(ResetBot(reset="RESET"))
+            await websocket.send(message)
     else:
+        auctioneer = Auctioneer(
+            room=room.bot_room,
+            game_type=room_key.gametype,
+            slowdown=0,
+            verbose=True,
+        )
+        log.info("running normal room")
         winners = await auctioneer.run_auction()
-        log.info(f"Winners: {room_info.winners}")
+        log.info(f"Winners: {room.winners}")
 
     room_info.has_run = True
 
@@ -97,9 +110,9 @@ async def root(websocket, path):
         log.debug(f"Adding room_key={key} to the state")
 
         room = (
-            MultiRoom(winners={}, room=[], runs=registration.runs)
+            MultiRoom(winners={}, bot_room=[], runs=registration.runs)
             if room_type is MultiRoom
-            else SingleRoom(winners=[], room=[])
+            else SingleRoom(winners=[], bot_room=[])
         )
 
         rooms[key] = (
@@ -136,7 +149,9 @@ async def root(websocket, path):
         if not info.has_run:
             log.debug(f"Beginning auction for key={key}")
 
-            await _run_auction(room_info=info, room=room)
+            await _run_auction(
+                room_key=key, room_info=info, room=room, websocket=websocket
+            )
             # Create the auctioneer and begin
             # auctioneer = Auctioneer(
             #     room=room,

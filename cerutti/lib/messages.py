@@ -36,3 +36,9 @@ class AuctionEnd:
 class MultiAuctionEnd:
     winners: Dict[str, int]
     Schema: ClassVar[Type[Schema]] = Schema
+
+
+@dataclass
+class ResetBot:
+    reset: str
+    Schema: ClassVar[Type[Schema]] = Schema
