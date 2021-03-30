@@ -1,4 +1,4 @@
-from typing import ClassVar, List, Type
+from typing import ClassVar, List, Type, Dict
 
 from marshmallow import Schema
 from marshmallow_dataclass import dataclass
@@ -12,6 +12,8 @@ class Registration:
     gametype: str
     # The number of bots to wait for
     bots: int
+    # The number of runs of the auction
+    runs: int
 
     # For the type checker
     Schema: ClassVar[Type[Schema]] = Schema
@@ -27,4 +29,10 @@ class BidRequest:
 @dataclass
 class AuctionEnd:
     winners: List[str]
+    Schema: ClassVar[Type[Schema]] = Schema
+
+
+@dataclass
+class MultiAuctionEnd:
+    winners: Dict[str, int]
     Schema: ClassVar[Type[Schema]] = Schema
