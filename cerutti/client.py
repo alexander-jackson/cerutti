@@ -9,7 +9,7 @@ from typing import Optional, Union
 from zenlog import log
 
 from cerutti.player import Bot
-from cerutti.lib.messages import AuctionEnd, BidRequest, Registration
+from cerutti.lib.messages import AuctionEnd, BidRequest, Registration, MultiAuctionEnd
 
 # Create a bot for the user
 bot = Bot()
@@ -47,7 +47,7 @@ async def play_game(websocket, gametype: str):
                 value = str(bot.get_bid_game_type_collection(**args))
 
             await websocket.send(value)
-        elif isinstance(message, AuctionEnd):
+        elif isinstance(message, (AuctionEnd, MultiAuctionEnd)):
             log.info(f"Auction winners: {message.winners}")
             return
 
