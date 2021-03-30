@@ -9,7 +9,13 @@ from typing import Optional, Union
 from zenlog import log
 
 from cerutti.player import Bot
-from cerutti.lib.messages import AuctionEnd, BidRequest, Registration
+from cerutti.lib.messages import (
+    AuctionEnd,
+    BidRequest,
+    Registration,
+    MultiAuctionEnd,
+    ResetBot,
+)
 
 # Create a bot for the user
 bot = Bot()
@@ -18,7 +24,7 @@ bot = Bot()
 async def parse_game_message(websocket) -> Optional[Union[BidRequest, AuctionEnd]]:
     data = await websocket.recv()
 
-    types = [BidRequest, AuctionEnd]
+    types = [BidRequest, AuctionEnd, MultiAuctionEnd, ResetBot]
 
     for ty in types:
         try:
@@ -30,6 +36,7 @@ async def parse_game_message(websocket) -> Optional[Union[BidRequest, AuctionEnd
 
 async def play_game(websocket, gametype: str):
     # Wait until the game begins
+    global bot
     while True:
         message = await parse_game_message(websocket)
 
@@ -47,9 +54,12 @@ async def play_game(websocket, gametype: str):
                 value = str(bot.get_bid_game_type_collection(**args))
 
             await websocket.send(value)
-        elif isinstance(message, AuctionEnd):
+        elif isinstance(message, (AuctionEnd, MultiAuctionEnd)):
             log.info(f"Auction winners: {message.winners}")
             return
+        elif isinstance(message, ResetBot):
+            log.info("Resetting bot")
+            bot = Bot()
 
 
 async def main(args):
@@ -62,7 +72,7 @@ async def main(args):
 
     async with websockets.connect(uri) as websocket:
         registration = Registration(
-            name=bot.name, gametype=args.gametype, bots=args.bots
+            name=bot.name, gametype=args.gametype, bots=args.bots, runs=args.runs
         )
         message = Registration.Schema().dumps(registration)
 

@@ -30,6 +30,9 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="The number of bots to play against",
     )
+    client_parser.add_argument(
+        "--runs", type=int, required=False, default=1, help="Number of auctions to run"
+    )
     client_parser.set_defaults(func=client.start)
 
     server_parser = subparser.add_parser("server", help="Client arguments")
