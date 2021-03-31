@@ -24,7 +24,7 @@ class UserBot(object):
         message = BidRequest.Schema().dump(bid_request)
         await self.websocket.send(json.dumps(message))
 
-        return int(await self.websocket.recv())
+        return int(float(await self.websocket.recv()))
 
     async def get_bid_game_type_value(self, args) -> int:
         arguments = pickle.dumps(args).hex()
@@ -33,7 +33,7 @@ class UserBot(object):
         message = BidRequest.Schema().dump(bid_request)
         await self.websocket.send(json.dumps(message))
 
-        return int(await self.websocket.recv())
+        return int(float(await self.websocket.recv()))
 
     def __deepcopy__(self, memo):
         return UserBot(deepcopy(self.name, memo), self.websocket)
