@@ -20,7 +20,7 @@ event = asyncio.Event()
 @dataclass
 class SingleRoom:
     winners: List[str]
-    room: Room
+    bot_room: Room
 
     def add(self, bot: UserBot):
         self.bot_room.append(bot)
@@ -64,6 +64,7 @@ async def _run_auction(
 
     if room_info.room_type is MultiRoom:
 
+        assert isinstance(room, MultiRoom)
         log.debug("Running multiroom")
         for _ in range(room.runs):
             auctioneer = Auctioneer(
@@ -89,7 +90,7 @@ async def _run_auction(
             verbose=True,
         )
         log.info("running normal room")
-        winners = await auctioneer.run_auction()
+        room.winners = await auctioneer.run_auction()
         log.info(f"Winners: {room.winners}")
 
     room_info.has_run = True

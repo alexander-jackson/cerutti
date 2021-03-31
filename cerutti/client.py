@@ -21,7 +21,9 @@ from cerutti.lib.messages import (
 bot = Bot()
 
 
-async def parse_game_message(websocket) -> Optional[Union[BidRequest, AuctionEnd]]:
+async def parse_game_message(
+    websocket,
+) -> Optional[Union[BidRequest, AuctionEnd, MultiAuctionEnd, ResetBot]]:
     data = await websocket.recv()
 
     types = [BidRequest, AuctionEnd, MultiAuctionEnd, ResetBot]
